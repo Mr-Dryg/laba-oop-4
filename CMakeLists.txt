@@ -22,7 +22,11 @@ FetchContent_MakeAvailable(googletest)
 
 
 add_library(${CMAKE_PROJECT_NAME}_lib
-src/src.cpp
+src/array.cpp
+src/figure.cpp
+src/octagon.cpp
+src/square.cpp
+src/triangle.cpp
 )
 add_executable(${CMAKE_PROJECT_NAME}_exe main.cpp)
 
@@ -32,8 +36,14 @@ target_link_libraries(${CMAKE_PROJECT_NAME}_exe PRIVATE ${CMAKE_PROJECT_NAME}_li
 enable_testing()
 
 add_executable(tests
-  tests/tests01.cpp
+  tests/test_array.cpp
+  tests/test_comparison.cpp
+  tests/test_figure.cpp
+  tests/test_io.cpp
   tests/test_main.cpp
+  tests/test_octagon.cpp
+  tests/test_square.cpp
+  tests/test_triangle.cpp
 )
 target_link_libraries(tests ${CMAKE_PROJECT_NAME}_lib gtest_main)
 
