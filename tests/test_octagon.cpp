@@ -1,22 +1,34 @@
 #include <gtest/gtest.h>
-#include "../include/octagon.h"
+#include "octagon.h"
+#include <cmath>
 
 TEST(OctagonTest, DefaultConstructor) {
-    Octagon oct;
-    EXPECT_NEAR(double(oct), 4.8284, 0.0001);
+    Octagon<double> o;
+    EXPECT_EQ(o.get_center().x, 0.0);
+    EXPECT_EQ(o.get_center().y, 0.0);
 }
 
 TEST(OctagonTest, SideLengthConstructor) {
-    Octagon oct(2.5);
-    EXPECT_NEAR(double(oct), 30.178, 0.001);
+    Octagon<double> o(2.0);
+    double expected_area = 2.0 * (1.0 + std::sqrt(2.0)) * 4.0;
+    EXPECT_NEAR(static_cast<double>(o), expected_area, 0.0001);
 }
 
-TEST(OctagonTest, FullConstructor) {
-    std::array<double, 2> center = {1.0, 2.0};
-    Octagon oct(3.0, center);
-    
-    EXPECT_NEAR(double(oct), 43.4558, 0.0001);
-    auto result = oct.get_center();
-    EXPECT_DOUBLE_EQ(result[0], 1.0);
-    EXPECT_DOUBLE_EQ(result[1], 2.0);
+TEST(OctagonTest, SideLengthAndCenterConstructor) {
+    Octagon<double> o(2.0, {1.0, 1.0});
+    Point<double> center = o.get_center();
+    EXPECT_EQ(center.x, 1.0);
+    EXPECT_EQ(center.y, 1.0);
+}
+
+TEST(OctagonTest, AreaCalculation) {
+    Octagon<double> o(1.0);
+    double expected_area = 2.0 * (1.0 + std::sqrt(2.0));
+    EXPECT_NEAR(static_cast<double>(o), expected_area, 0.0001);
+}
+
+TEST(OctagonTest, EqualityOperator) {
+    Octagon<double> o1(2.0);
+    Octagon<double> o2(2.0);
+    EXPECT_TRUE(o1 == o2);
 }

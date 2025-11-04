@@ -1,31 +1,47 @@
 #include <gtest/gtest.h>
-#include "../include/triangle.h"
+#include "triangle.h"
 
 TEST(TriangleTest, DefaultConstructor) {
-    Triangle tr;
-    EXPECT_NEAR(double(tr), 0.4330, 0.0001);
+    Triangle<double> t;
+    EXPECT_EQ(t.get_center().x, 0.0);
+    EXPECT_EQ(t.get_center().y, 0.0);
 }
 
 TEST(TriangleTest, SideLengthConstructor) {
-    Triangle tr(3.0);
-    EXPECT_NEAR(double(tr), 3.8971, 0.0001);
+    Triangle<double> t(2.0);
+    EXPECT_NEAR(static_cast<double>(t), std::sqrt(3.0), 0.0001);
 }
 
-TEST(TriangleTest, FullConstructor) {
-    std::array<double, 2> center = {1.0, 1.0};
-    Triangle tr(2.0, center);
-    
-    EXPECT_NEAR(double(tr), 1.732, 0.001);
-    auto result = tr.get_center();
-    EXPECT_DOUBLE_EQ(result[0], 1.0);
-    EXPECT_DOUBLE_EQ(result[1], 1.0);
+TEST(TriangleTest, SideLengthAndCenterConstructor) {
+    Triangle<double> t(2.0, {1.0, 1.0});
+    Point<double> center = t.get_center();
+    EXPECT_EQ(center.x, 1.0);
+    EXPECT_EQ(center.y, 1.0);
 }
 
-TEST(TriangleTest, ThreeVertexConstructor) {
-    std::array<double, 2> v1 = {0.0, 0.0};
-    std::array<double, 2> v2 = {1.0, 0.0};
-    std::array<double, 2> v3 = {0.5, 0.866};
-    Triangle tr(v1, v2, v3);
+TEST(TriangleTest, VerticesConstructor) {
+    Triangle<double> t({0.0, 0.0}, {1.0, 0.0}, {0.5, std::sqrt(3.0)/2});
+    EXPECT_NEAR(static_cast<double>(t), std::sqrt(3.0)/4, 0.0001);
+}
+
+TEST(TriangleTest, AreaCalculation) {
+    Triangle<double> t(2.0);
+    double expected_area = std::sqrt(3.0);
+    EXPECT_NEAR(static_cast<double>(t), expected_area, 0.0001);
+}
+
+TEST(TriangleTest, EqualityOperator) {
+    Triangle<double> t1(2.0);
+    Triangle<double> t2(2.0);
+    EXPECT_TRUE(t1 == t2);
+}
+
+TEST(TriangleTest, InputOutput) {
+    Triangle<double> t1(2.0);
+    std::stringstream ss;
+    ss << t1;
     
-    EXPECT_NEAR(double(tr), 0.433, 0.001);
+    Triangle<double> t2;
+    ss >> t2;
+    EXPECT_TRUE(t1 == t2);
 }

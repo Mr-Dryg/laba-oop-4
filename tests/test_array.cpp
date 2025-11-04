@@ -1,69 +1,95 @@
 #include <gtest/gtest.h>
-#include "../include/array.h"
-#include "../include/octagon.h"
-#include "../include/square.h"
-#include "../include/triangle.h"
+#include <memory>
+#include "array.h"
+#include "octagon.h"
+#include "square.h"
+#include "triangle.h"
 
-TEST(ArrayTest, DefaultConstructor) {
-    MyArray arr;
-    EXPECT_EQ(arr.sum(), 0.0);
+TEST(MyArrayTest, DefaultConstructor) {
+    MyArray<Triangle<double>> arr;
+    EXPECT_DOUBLE_EQ(arr.sum(), 0.0);
 }
 
-TEST(ArrayTest, CustomSizeConstructor) {
-    MyArray arr(5);
-    EXPECT_EQ(arr.sum(), 0.0);
+TEST(MyArrayTest, SizeConstructor) {
+    MyArray<Triangle<double>> arr(20);
+    EXPECT_DOUBLE_EQ(arr.sum(), 0.0);
 }
 
-TEST(ArrayTest, PushBackAndSum) {
-    MyArray arr(3);
+TEST(MyArrayTest, PushBackAndGet) {
+    MyArray<Triangle<double>> arr;
+    auto triangle = std::make_shared<Triangle<double>>(1.0);
     
-    Octagon* oct = new Octagon(1.0);
-    Square* sq = new Square(2.0);
-    Triangle* tr = new Triangle(3.0);
+    arr.push_back(triangle);
+    auto retrieved = arr.get(0);
     
-    arr.push_back(oct);
-    arr.push_back(sq);
-    arr.push_back(tr);
-    
-    double total = double(*oct) + double(*sq) + double(*tr);
-    EXPECT_NEAR(arr.sum(), total, 0.0001);
+    EXPECT_TRUE(retrieved != nullptr);
+    EXPECT_NEAR(static_cast<double>(*retrieved), std::sqrt(3.0)/4.0, 0.001);
 }
 
-TEST(ArrayTest, GetMethod) {
-    MyArray arr(2);
-    Square* sq = new Square(2.0);
-    arr.push_back(sq);
+TEST(MyArrayTest, PushBackMultiple) {
+    MyArray<Triangle<double>> arr(2);
     
-    Figure* retrieved = arr.get(0);
-    EXPECT_EQ(retrieved, sq);
-    EXPECT_EQ(arr.get(1), nullptr);
+    for(int i = 0; i < 5; ++i) {
+        auto triangle = std::make_shared<Triangle<double>>(1.0);
+        arr.push_back(triangle);
+    }
+    
+    EXPECT_DOUBLE_EQ(arr.sum(), 5 * (std::sqrt(3.0)/4.0));
 }
 
-TEST(ArrayTest, PopMethod) {
-    MyArray arr(3);
+TEST(MyArrayTest, PopElement) {
+    MyArray<Triangle<double>> arr;
+    auto triangle1 = std::make_shared<Triangle<double>>(1.0);
+    auto triangle2 = std::make_shared<Triangle<double>>(2.0);
     
-    Octagon* oct = new Octagon(1.0);
-    Square* sq = new Square(2.0);
-    Triangle* tr = new Triangle(3.0);
+    arr.push_back(triangle1);
+    arr.push_back(triangle2);
     
-    arr.push_back(oct);
-    arr.push_back(sq);
-    arr.push_back(tr);
+    double initialSum = arr.sum();
+    auto popped = arr.pop(0);
     
-    Figure* popped = arr.pop(1);
-    EXPECT_EQ(popped, sq);
-    EXPECT_EQ(arr.get(1), tr);
-    EXPECT_EQ(arr.get(2), nullptr);
+    EXPECT_TRUE(popped != nullptr);
+    EXPECT_NEAR(static_cast<double>(*popped), std::sqrt(3.0)/4.0, 0.001);
+    EXPECT_NEAR(arr.sum(), static_cast<double>(*triangle2), 0.001);
 }
 
-TEST(ArrayTest, OverflowHandling) {
-    MyArray arr(2);
+TEST(MyArrayTest, PopInvalidIndex) {
+    MyArray<Triangle<double>> arr;
+    auto triangle = std::make_shared<Triangle<double>>(1.0);
+    arr.push_back(triangle);
     
-    Octagon* oct1 = new Octagon(1.0);
-    Octagon* oct2 = new Octagon(2.0);
-    Octagon* oct3 = new Octagon(3.0);
+    auto popped = arr.pop(5);
+    EXPECT_TRUE(popped == nullptr);
     
-    EXPECT_TRUE(arr.push_back(oct1));
-    EXPECT_TRUE(arr.push_back(oct2));
-    EXPECT_FALSE(arr.push_back(oct3));
+    popped = arr.pop(-1);
+    EXPECT_TRUE(popped == nullptr);
+}
+
+TEST(MyArrayTest, GetInvalidIndex) {
+    MyArray<Triangle<double>> arr;
+    auto triangle = std::make_shared<Triangle<double>>(1.0);
+    arr.push_back(triangle);
+    
+    auto result = arr.get(5);
+    EXPECT_TRUE(result == nullptr);
+    
+    result = arr.get(-1);
+    EXPECT_TRUE(result == nullptr);
+}
+
+TEST(MyArrayTest, MixedFiguresSum) {
+    MyArray<Figure<double>> arr;
+    
+    auto triangle = std::make_shared<Triangle<double>>(1.0);
+    auto square = std::make_shared<Square<double>>(1.0);
+    auto octagon = std::make_shared<Octagon<double>>(1.0);
+    
+    arr.push_back(triangle);
+    arr.push_back(square);
+    arr.push_back(octagon);
+    
+    double totalArea = arr.sum();
+    double expected = (std::sqrt(3.0)/4.0) + 1.0 + (2.0 * (1.0 + std::sqrt(2.0)));
+    
+    EXPECT_NEAR(totalArea, expected, 0.001);
 }
